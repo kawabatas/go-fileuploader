@@ -18,5 +18,6 @@ type fileDetailResponse struct {
 	FileName    string    `json:"filename"`
 	Size        int       `json:"size"`
 	DownloadURL string    `json:"download_url"`
+	UserEmail   string    `json:"useremail"`
 	CreatedAt   time.Time `json:"created_at"`
 }

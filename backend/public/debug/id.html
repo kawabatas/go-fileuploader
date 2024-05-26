@@ -3,9 +3,16 @@
   <head>
     <meta charset="UTF-8">
     <title>My App</title>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+    <script src="./firebaseconfig.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth__ja.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+    <script src="./auth.js"></script>
   </head>
   <body>
     <div>ID</div>
+    <div id="firebaseui-auth-container"></div><br>
     <div id="info"></div>
     <div id="preview"></div>
     <script type="module">
@@ -26,10 +33,13 @@
       title.textContent = file.title + " (" + file.filename +")";
       const size = document.createElement("div");
       size.textContent = file.size;
+      const email = document.createElement("div");
+      email.textContent = file.useremail;
       const createdAt = document.createElement("div");
       createdAt.textContent = file.created_at;
       info.appendChild(title);
       info.appendChild(size);
+      info.appendChild(email);
       info.appendChild(createdAt);
 
       const preview = document.getElementById('preview');

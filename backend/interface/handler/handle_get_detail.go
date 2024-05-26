@@ -40,6 +40,7 @@ func (mux *ServerMux) handleGetDetail(w http.ResponseWriter, r *http.Request) {
 		Size:        file.Size,
 		DownloadURL: downloadURL,
 		CreatedAt:   file.CreatedAt,
+		UserEmail:   file.User.Email,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(res); err != nil {

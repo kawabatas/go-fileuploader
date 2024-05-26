@@ -16,11 +16,12 @@ func (mux *ServerMux) handlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var (
-		err      error
-		fileName string
-		title    string
-		fileSize int
-		mimeType string
+		err       error
+		fileName  string
+		title     string
+		fileSize  int
+		mimeType  string
+		userEmail string
 	)
 	fileSrc, fileHeader, err := r.FormFile("upload-image")
 	if err != nil {
@@ -48,6 +49,12 @@ func (mux *ServerMux) handlePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
+	userEmail = r.MultipartForm.Value["email"][0]
+	// email はもっとしっかりチェックしていい
+	if len(userEmail) == 0 {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
 
 	// ユースケース
 	if err := mux.fileUseCase.Post(
@@ -57,6 +64,7 @@ func (mux *ServerMux) handlePost(w http.ResponseWriter, r *http.Request) {
 		title,
 		fileSize,
 		mimeType,
+		userEmail,
 	); err != nil {
 		http.Error(w, "server error occurred", http.StatusInternalServerError)
 		return

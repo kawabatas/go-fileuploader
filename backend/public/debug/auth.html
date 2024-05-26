@@ -11,23 +11,6 @@
     <script src="./auth.js"></script>
   </head>
   <body>
-    <div>New</div>
     <div id="firebaseui-auth-container"></div><br>
-    <form method="post" enctype="multipart/form-data" action="/files">
-      <input type="file" name="upload-image" accept="image/png, image/jpeg, image/gif" required>
-      <input type="text" name="title">
-      <input type="hidden" name="email" id="email">
-      <button type="submit">送信する</button>
-    </form>
-    <script type="module">
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          const hiddenField = document.getElementById('email');
-          hiddenField.value = firebase.auth().currentUser.email
-        } else {
-          location.href = '/debug/auth.html'
-        }
-      });
-    </script>
   </body>
 </html>

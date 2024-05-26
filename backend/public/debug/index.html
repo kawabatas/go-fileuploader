@@ -3,10 +3,17 @@
   <head>
     <meta charset="UTF-8">
     <title>My App</title>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+    <script src="./firebaseconfig.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth__ja.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+    <script src="./auth.js"></script>
   </head>
   <body>
     <div>List</div>
-    <p><a href="http://localhost:8080/debug/new.html">newページへ</a></p>
+    <div id="firebaseui-auth-container"></div><br>
+    <p><a href="/debug/new.html">newページへ</a></p>
     <ul id="list-container"></ul>
     <script type="module">
       const response = await fetch("http://localhost:8080/", {
@@ -18,7 +25,7 @@
         const child = document.createElement("li");
         child.textContent = f.title + " : " + f.id;
         child.addEventListener('click', (_) => {
-          location.href = "http://localhost:8080/debug/id.html?id="+f.id;
+          location.href = "/debug/id.html?id="+f.id;
         });
         parent.appendChild(child);
       }

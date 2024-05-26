@@ -44,14 +44,15 @@ func (r *fileMetadataRepository) List(ctx context.Context, offset, limit int) ([
 
 func (r *fileMetadataRepository) Find(ctx context.Context, id string) (*model.File, error) {
 	var file model.File
-	query := "SELECT id, filename, title, size, mimetype, created_at FROM files WHERE id = ?"
+	var userID int
+	query := "SELECT id, filename, title, size, mimetype, user_id, created_at FROM files WHERE id = ?"
 	rows, err := r.db.QueryContext(ctx, query, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		if err := rows.Scan(&file.ID, &file.FileName, &file.Title, &file.Size, &file.MimeType, &file.CreatedAt); err != nil {
+		if err := rows.Scan(&file.ID, &file.FileName, &file.Title, &file.Size, &file.MimeType, &userID, &file.CreatedAt); err != nil {
 			return nil, err
 		}
 	}
@@ -61,12 +62,15 @@ func (r *fileMetadataRepository) Find(ctx context.Context, id string) (*model.Fi
 	if len(file.ID) == 0 {
 		return nil, model.ErrNotFound
 	}
+	file.User = &model.User{
+		ID: userID,
+	}
 	return &file, nil
 }
 
 func (r *fileMetadataRepository) Create(ctx context.Context, file *model.File) error {
-	query := "INSERT INTO files (id, filename, title, size, mimetype) VALUES (?, ?, ?, ?, ?)"
-	if _, err := r.db.ExecContext(ctx, query, file.ID, file.FileName, file.Title, file.Size, file.MimeType); err != nil {
+	query := "INSERT INTO files (id, filename, title, size, mimetype, user_id) VALUES (?, ?, ?, ?, ?, ?)"
+	if _, err := r.db.ExecContext(ctx, query, file.ID, file.FileName, file.Title, file.Size, file.MimeType, file.User.ID); err != nil {
 		return err
 	}
 	return nil

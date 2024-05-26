@@ -22,3 +22,4 @@ go.work
 
 /public/images/*
 !/public/images/.gitkeep
+firebaseconfig.js

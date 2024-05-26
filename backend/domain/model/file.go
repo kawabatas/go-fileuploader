@@ -16,6 +16,8 @@ type File struct {
 	MimeType  string
 	CreatedAt time.Time
 
+	User *User
+
 	baseURL string
 }
 
@@ -30,6 +32,10 @@ func NewFile() (*File, error) {
 
 func (f *File) SetBaseURL(base string) {
 	f.baseURL = base
+}
+
+func (f *File) SetUser(user *User) {
+	f.User = user
 }
 
 func (f *File) GetDownloadURL() (string, error) {

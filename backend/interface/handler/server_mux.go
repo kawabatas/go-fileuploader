@@ -29,10 +29,11 @@ func NewServeMux(
 	}
 
 	fileMetadataRepo := mysqldb.NewFileMetadataRepository(dbClient)
+	userRepo := mysqldb.NewUserRepository(dbClient)
 
 	fileBucketRepo := localfs.NewFileBucketRepository(bucketBaseDir)
 
-	fileUseCase := application.NewFileUseCase(fileMetadataRepo, fileBucketRepo, bucketBaseURL)
+	fileUseCase := application.NewFileUseCase(fileMetadataRepo, fileBucketRepo, userRepo, bucketBaseURL)
 
 	router := http.NewServeMux()
 	mux := &ServerMux{
