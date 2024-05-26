@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>My App</title>
+  </head>
+  <body>
+    <div>New</div>
+    <form method="post" enctype="multipart/form-data" action="/files">
+      <input type="file" name="upload-image" accept="image/png, image/jpeg, image/gif" required>
+      <input type="text" name="title">
+      <button type="submit">送信する</button>
+    </form>
+  </body>
+</html>

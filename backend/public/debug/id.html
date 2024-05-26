@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>My App</title>
+  </head>
+  <body>
+    <div>ID</div>
+    <div id="info"></div>
+    <div id="preview"></div>
+    <script type="module">
+      const param = location.search;
+      const params = param.split("=")
+      var id = "70c244a8-1ae3-11ef-ba03-46ca11d2bb9f"
+      if (params.length > 1) {
+        id = params[1]
+      }
+
+      const response = await fetch("http://localhost:8080/files/"+id, {
+        method: "GET",
+      });
+      const file = await response.json();
+
+      const info = document.getElementById('info');
+      const title = document.createElement("div");
+      title.textContent = file.title + " (" + file.filename +")";
+      const size = document.createElement("div");
+      size.textContent = file.size;
+      const createdAt = document.createElement("div");
+      createdAt.textContent = file.created_at;
+      info.appendChild(title);
+      info.appendChild(size);
+      info.appendChild(createdAt);
+
+      const preview = document.getElementById('preview');
+      const imageUrl = file.download_url;
+      const img = document.createElement("img");
+      img.src = imageUrl;
+      preview.appendChild(img);
+    </script>
+  </body>
+</html>

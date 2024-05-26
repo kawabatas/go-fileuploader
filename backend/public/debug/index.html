@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>My App</title>
+  </head>
+  <body>
+    <div>List</div>
+    <p><a href="http://localhost:8080/debug/new.html">newページへ</a></p>
+    <ul id="list-container"></ul>
+    <script type="module">
+      const response = await fetch("http://localhost:8080/", {
+        method: "GET",
+      });
+      const info = await response.json();
+      const parent = document.getElementById('list-container');
+      for (const f of info.files) {
+        const child = document.createElement("li");
+        child.textContent = f.title + " : " + f.id;
+        child.addEventListener('click', (_) => {
+          location.href = "http://localhost:8080/debug/id.html?id="+f.id;
+        });
+        parent.appendChild(child);
+      }
+    </script>
+  </body>
+</html>

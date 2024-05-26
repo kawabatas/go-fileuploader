@@ -1,0 +1,9 @@
+export STAGE=local
+export BUCKET_URL=http://localhost:8080/images
+# go run cmd/server/main.go 実行場所からの相対パス
+export BUCKET_DIR=./public/images
+export PUBLIC_DIR=./public
+export DATABASE_HOST=localhost:3306
+export DATABASE_USER=root
+export DATABASE_PASSWORD=root
+export DATABASE_NAME=myapps
