@@ -24,9 +24,17 @@ func main() {
 	if err != nil {
 		log.Fatalf("New server error: %v", err)
 	}
-	if err := srv.Initialize(ctx); err != nil {
+	closeFunctions, err := srv.Initialize(ctx)
+	if err != nil {
 		log.Fatalf("Initialize server error: %v", err)
 	}
+	defer func() {
+		for _, closeFunction := range closeFunctions {
+			if err := closeFunction(ctx); err != nil {
+				log.Printf("close function error: %v", err)
+			}
+		}
+	}()
 
 	log.Println("Starting server...")
 	go func() {

@@ -3,12 +3,15 @@ package server
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/caarlos0/env/v11"
 	"github.com/kawabatas/go-fileuploader/interface/handler"
-	"github.com/kawabatas/go-fileuploader/internal/logger"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/sdk/resource"
 )
 
 type Server struct {
@@ -82,12 +85,58 @@ func New(opts ...Option) (*Server, error) {
 	return s, nil
 }
 
-func (s *Server) Initialize(ctx context.Context) error {
+type closeFunction func(context.Context) error
+
+func (s *Server) Initialize(ctx context.Context) ([]closeFunction, error) {
+	closeFunctions := []closeFunction{}
+
+	logger := slog.New(NewTraceLoggingHandler(slog.NewJSONHandler(
+		os.Stdout,
+		&slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		},
+	)))
+	slog.SetDefault(logger)
+
 	cfg := config{}
 	if err := env.Parse(&cfg); err != nil {
-		return err
+		return closeFunctions, err
 	}
-	logger.Debugf("cfg: %+v\n", cfg)
+	slog.DebugContext(ctx, "config value",
+		slog.String("STAGE", cfg.Stage),
+		slog.String("BUCKET_URL", cfg.BucketURL),
+		slog.String("BUCKET_DIR", cfg.BucketDir),
+		slog.String("PUBLIC_DIR", cfg.PublicDir),
+		slog.String("DATABASE_HOST", cfg.DBHost),
+		slog.String("DATABASE_USER", cfg.DBUser),
+		slog.String("DATABASE_PASSWORD", cfg.DBPassword),
+		slog.String("DATABASE_NAME", cfg.DBName),
+	)
+
+	// OpenTelemetry
+	conn, err := initConn()
+	if err != nil {
+		return closeFunctions, err
+	}
+	res, err := resource.New(ctx,
+		resource.WithAttributes(
+			// The service name used to display traces in backends
+			serviceName,
+		),
+	)
+	if err != nil {
+		return closeFunctions, err
+	}
+	shutdownTracerProvider, err := initTracerProvider(ctx, res, conn)
+	if err != nil {
+		return closeFunctions, err
+	}
+	closeFunctions = append(closeFunctions, shutdownTracerProvider)
+	shutdownMeterProvider, err := initMeterProvider(ctx, res, conn)
+	if err != nil {
+		return closeFunctions, err
+	}
+	closeFunctions = append(closeFunctions, shutdownMeterProvider)
 
 	mux, err := handler.NewServeMux(
 		cfg.Stage,
@@ -95,10 +144,13 @@ func (s *Server) Initialize(ctx context.Context) error {
 		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBName,
 	)
 	if err != nil {
-		return err
+		return closeFunctions, err
 	}
-	s.httpServer.Handler = mux
-	return nil
+	handler := otelhttp.NewHandler(mux, "server",
+		otelhttp.WithMessageEvents(otelhttp.ReadEvents, otelhttp.WriteEvents),
+	)
+	s.httpServer.Handler = handler
+	return closeFunctions, nil
 }
 
 func (s *Server) Serve(ctx context.Context) error {

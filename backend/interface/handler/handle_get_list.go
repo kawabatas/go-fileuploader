@@ -45,6 +45,7 @@ func (mux *ServerMux) handleGetList(w http.ResponseWriter, r *http.Request) {
 		Next:  len(files) > FILE_COUNT_PER_PAGE,
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		http.Error(w, "server error occurred", http.StatusInternalServerError)
 		return

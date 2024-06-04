@@ -43,6 +43,7 @@ func (mux *ServerMux) handleGetDetail(w http.ResponseWriter, r *http.Request) {
 		UserEmail:   file.User.Email,
 	}
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		http.Error(w, "server error occurred", http.StatusInternalServerError)
 		return
