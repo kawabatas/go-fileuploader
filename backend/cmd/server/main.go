@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/kawabatas/go-fileuploader/server"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/metric"
 )
 
 func main() {
@@ -35,6 +37,16 @@ func main() {
 			}
 		}
 	}()
+
+	sampleMeter := otel.Meter("test-meter")
+	runCount, err := sampleMeter.Int64Counter("run", metric.WithDescription("The number of times the iteration ran"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	for i := 0; i < 10; i++ {
+		runCount.Add(ctx, 1)
+		log.Printf("Doing really hard work (%d / 10)\n", i+1)
+	}
 
 	log.Println("Starting server...")
 	go func() {
